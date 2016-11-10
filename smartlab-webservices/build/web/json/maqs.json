@@ -1,0 +1,9 @@
+[
+	{"id":"0","osType":"0","runningProcesses":"15","networkAddress":"192.168.0.23","totalMemory":"9999","freeMemory":"2312"},
+	{"id":"1","osType":"0","runningProcesses":"15","networkAddress":"192.168.0.23","totalMemory":"9999","freeMemory":"2312"},
+	{"id":"2","osType":"0","runningProcesses":"15","networkAddress":"192.168.0.23","totalMemory":"9999","freeMemory":"2312"},
+	{"id":"3","osType":"0","runningProcesses":"15","networkAddress":"192.168.0.23","totalMemory":"9999","freeMemory":"2312"},
+	{"id":"4","osType":"1","runningProcesses":"15","networkAddress":"192.168.0.23","totalMemory":"9999","freeMemory":"2312"},
+	{"id":"5","osType":"0","runningProcesses":"15","networkAddress":"192.168.0.23","totalMemory":"9999","freeMemory":"2312"},
+	{"id":"6","osType":"0","runningProcesses":"15","networkAddress":"192.168.0.23","totalMemory":"9999","freeMemory":"2312"}
+]
