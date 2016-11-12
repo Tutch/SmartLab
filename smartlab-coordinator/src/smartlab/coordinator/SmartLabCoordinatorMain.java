@@ -128,7 +128,7 @@ public class SmartLabCoordinatorMain {
             SmartLabCoordinatorServer server = new SmartLabCoordinatorServer(connection, serverPort);
             server.start();
             
-            SmartLabCoordinatorMonitor monitor = new SmartLabCoordinatorMonitor(connection, laboratoryId);
+            SmartLabCoordinatorMonitor monitor = new SmartLabCoordinatorMonitor(connection, laboratoryId, listener);
             monitor.start();
 
         } catch (Exception ex) {

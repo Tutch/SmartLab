@@ -24,6 +24,7 @@ public class SmartLabCoordinatorMonitor extends Thread {
 
     private Connection connection;
     private int laboratoryId;
+    private SmartLabCoordinatorArduinoSerialListener serialComm;
 
     public static String[] getMachineAddressListByLaboratory(Connection connection, int laboratoryId) {
         String[] result = null;
@@ -40,15 +41,17 @@ public class SmartLabCoordinatorMonitor extends Thread {
             for (int i = 0; i < resultSetList.size(); i++) {
                 result[i] = resultSetList.get(i);
             }
+                
         } catch (SQLException ex) {
 
         }
         return result;
     }
 
-    public SmartLabCoordinatorMonitor(Connection connection, int laboratoryId) {
+    public SmartLabCoordinatorMonitor(Connection connection, int laboratoryId, SmartLabCoordinatorArduinoSerialListener listener) {
         this.connection = connection;
         this.laboratoryId = laboratoryId;
+        this.serialComm = listener;
     }
 
     @Override
@@ -101,7 +104,12 @@ public class SmartLabCoordinatorMonitor extends Thread {
                 resultSetLaboratories.close();
                 statementLaboratories.close();
                 for (Laboratory l : laboratoryList) {
+                    System.out.println(l.getTemperature());
+                    
                     if (l.getPresence() == false && l.getTemperature() >= 26.0) {
+                        System.out.println("desligando...");
+                        serialComm.sendMessage("shutdown");
+                        
                         Statement statement = connection.createStatement();
                         ResultSet resultSet = statement.executeQuery(
                                 "SELECT id, \"timestamp\", laboratory_id, disk_total, disk_free, mem_total, mem_free, cpu_used, running_process, machine_address, EXTRACT(EPOCH FROM (NOW() - \"timestamp\")) AS \"last_time\" "

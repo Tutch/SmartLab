@@ -73,6 +73,7 @@ void loop() {
     mediamDistance = 0;
     mediamLDR = 0;
     mediamTemperature = 0;
+    presence = false;
   }
 
   sendStart = millis();
@@ -130,7 +131,7 @@ void writeSensorsToSerial(){
 }
 
 void turnOffAC(String messageReceived){
-  Serial.println("-- Desligamento --");
+  Serial.println("AC_SHUTDOWN");
   
   // read the incoming byte:
   if(messageReceived.equals(TURN_OFF)){
@@ -141,5 +142,6 @@ void turnOffAC(String messageReceived){
       delay(100);
     }
   }
-  
+
+  delay(300);
 }
