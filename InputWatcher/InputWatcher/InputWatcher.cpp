@@ -10,6 +10,46 @@ clock_t start_time, current_time;
 bool monitor_is_on = true;
 bool is_shutting_down = false;
 
+/* Chama o .bat que faz o desligamento da máquina
+*/
+VOID executeCommand(wchar_t* wBatPath)
+{
+	// additional information
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+
+	// set the size of the structures
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+	ZeroMemory(&pi, sizeof(pi));
+
+	wchar_t cmd[120] = L"cmd.exe /C ";
+	wcsncpy_s(cmd, wBatPath, wcslen(cmd) - 12);
+
+	// start the program up
+	if (!CreateProcess(NULL,   // the path
+		cmd,        // Command line
+		NULL,           // Process handle not inheritable
+		NULL,           // Thread handle not inheritable
+		FALSE,          // Set handle inheritance to FALSE
+		0,              // No creation flags
+		NULL,           // Use parent's environment block
+		NULL,           // Use parent's starting directory 
+		&si,            // Pointer to STARTUPINFO structure
+		&pi)           // Pointer to PROCESS_INFORMATION structure
+		) {
+		int error = GetLastError();
+		wchar_t buffer[256];
+		wsprintfW(buffer, L"%d", error);
+		OutputDebugString(buffer);
+		abort();
+	}
+
+	// Close process and thread handles. 
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+}
+
 /* http://stackoverflow.com/questions/15968520/confusion-about-mouse-hooks-in-c
  * Called on mouse & keyboard events
  * Sets the variable responsible for the starting time to the current time,
@@ -24,6 +64,7 @@ LRESULT CALLBACK inputHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 	start_time = clock();
 	monitor_is_on = true;
+	
 	return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
@@ -46,36 +87,6 @@ DWORD WINAPI inputLogger(LPVOID lpParm)
 
 	UnhookWindowsHookEx(mouseHook);
 	return 0;
-}
-
-/* Chama o .bat que faz o desligamento da máquina
- */
-VOID shutdownMachine(LPCTSTR lpApplicationName)
-{
-	// additional information
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
-
-	// set the size of the structures
-	ZeroMemory(&si, sizeof(si));
-	si.cb = sizeof(si);
-	ZeroMemory(&pi, sizeof(pi));
-
-	// start the program up
-	CreateProcess(lpApplicationName,   // the path
-		L"",        // Command line
-		NULL,           // Process handle not inheritable
-		NULL,           // Thread handle not inheritable
-		FALSE,          // Set handle inheritance to FALSE
-		0,              // No creation flags
-		NULL,           // Use parent's environment block
-		NULL,           // Use parent's starting directory 
-		&si,            // Pointer to STARTUPINFO structure
-		&pi);           // Pointer to PROCESS_INFORMATION structure
-		
-		// Close process and thread handles. 
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
 }
 
 
@@ -112,14 +123,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		// Display off
 		if (time_diff >= DISPLAY_TURN_OFF_TIME && monitor_is_on) {
 			monitor_is_on = false;
+			OutputDebugString(L"display\n");
 			PostMessage(HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, (LPARAM)2);
 		}
 
-		// Display off
+		// Shutdown Computer
 		else if (time_diff >= SYSTEM_SHUT_DOWN_TIME && !monitor_is_on && !is_shutting_down) {
-			// TODO: Call .bat file
 			is_shutting_down = true;
-			shutdownMachine(BAT_PATH);
+			OutputDebugString(L"calling bat\n");
+			executeCommand(SHUTDOWN_PATH);
 		}
 
 	}
