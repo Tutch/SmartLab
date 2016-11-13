@@ -40,9 +40,12 @@ public class ShutdownMachineService extends HttpServlet {
         int laboratoryId = Integer.parseInt(request.getParameter("laboratoryId"));
         int machineId = Integer.parseInt(request.getParameter("machineId"));
         String machineAddress = null;
+        
+        System.out.println("chamado");
+        
         try {
             Class.forName("org.postgresql.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/smartlab", "smartlab", "ufc123");
+            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/smartlab", "postgres", "ufc123");
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(
                     "SELECT id, \"timestamp\", laboratory_id, disk_total, disk_free, mem_total, mem_free, cpu_used, running_process, machine_address "

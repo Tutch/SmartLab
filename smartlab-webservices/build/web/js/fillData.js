@@ -120,8 +120,18 @@ function listarInfos(value){
                     $('#machinesInfo').append($('<div class="section group" id=' + rootId + '>'));
                 }
 
+                var freeMem = parseInt(maq.freeMemory, 10)/Math.pow(1024,2);
+                var freeMemString = freeMem.toString();
+
+                var freeMemDisplay = freeMemString.substring(0,1) + '.' + freeMemString.substring(2,4) + 'GB';
+
+                var totalMem = parseInt(maq.totalMemory, 10)/Math.pow(1024,3);
+                var totalMemString = totalMem.toString();
+
+                var totalMemDisplay = totalMemString.substring(0,1) + '.' + totalMemString.substring(2,4) + 'GB';
+
                 $('#' + rootId).append($('<div class="col span_2_of_10">')
-                    .append($('<div class="maqGroup">')
+                    .append($('<div id="maq'+ maq.id +'"     class="maqGroup">')
                         .append($('<p>')
                             .append($('<span class="maqLabel">').text('IP: '))
                             .append($('<span>').text(maq.networkAddress))
@@ -136,7 +146,7 @@ function listarInfos(value){
                         )
                         .append($('<p>')
                             .append($('<span class="maqLabel">').text('Memória: '))
-                            .append($('<span>').text(maq.freeMemory + " de " + maq.totalMemory))
+                            .append($('<span>').text( freeMemDisplay + " de " + totalMemDisplay) )
                         )
                         .append($('<button id="shutdownMaq" onclick="shutdown(' + value + "," + maq.id + ')">Desligar</button>'))
                     )
@@ -161,8 +171,6 @@ function listarInfos(value){
 /* Desliga o laboratório (em implementação)
  */
 $('#labInfo').on('click', '#shutdownLab', function(){
-    // do something
-    alert("Not yet implemented");
 
     if(currentLabId != -1){
 
@@ -170,19 +178,10 @@ $('#labInfo').on('click', '#shutdownLab', function(){
 
             var maqId = maqsJson[i].id;
 
-            $.ajax({
-                url: shutdownURL,
-                type:'POST',
-                dataType: 'json',
-                data:{ "laboratoryId":currentLabId,"machineId":maqId},
+            console.log(currentLabId);
+            console.log(maqId);
 
-                success: function( json ) {
-                    alert("Tentando desligar tudo! " + currentLabId + " - " + maqId);
-                }, 
-                error: function(xhr, error){
-                    console.debug(xhr); console.debug(error);
-                }
-            });
+            shutdown(currentLabId, maqId);
         }
     }
 });
@@ -190,6 +189,7 @@ $('#labInfo').on('click', '#shutdownLab', function(){
 
 // Desliga uma única máquina (em implementação)
 function shutdown(labId, maqId){  
+
     $.ajax({
         url: shutdownURL,
         type:'POST',
@@ -197,7 +197,19 @@ function shutdown(labId, maqId){
         data:{ "laboratoryId":labId,"machineId":maqId},
 
         success: function( json ) {
-            alert("Máquina " + json.id + " desligada com sucesso.");
+            console.log(json);
+
+            if(json.shutdown === "true"){
+                var id = '#maq' + maqId;
+
+                $(id).css('background','#eee');
+                $(id).css('color','#aaa');
+                $(id + ' #shutdownMaq').css('background-color','#aaa');
+                $(id + ' #shutdownMaq').prop('disabled',true); 
+                $(id + ' #shutdownMaq').text('Desligando');
+
+            }
+
         }, 
         error: function(xhr, error){
             console.debug(xhr); console.debug(error);

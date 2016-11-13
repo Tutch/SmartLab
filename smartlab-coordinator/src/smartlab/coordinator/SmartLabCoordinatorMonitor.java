@@ -104,7 +104,6 @@ public class SmartLabCoordinatorMonitor extends Thread {
                 resultSetLaboratories.close();
                 statementLaboratories.close();
                 for (Laboratory l : laboratoryList) {
-                    System.out.println(l.getTemperature());
                     
                     if (l.getPresence() == false && l.getTemperature() >= 26.0) {
                         System.out.println("desligando...");
@@ -124,6 +123,7 @@ public class SmartLabCoordinatorMonitor extends Thread {
                                 socket.close();
                                 System.out.println("SmartLabCoordinator: Desligando a máquina " + machineAddress + " do laboratório " + l.getId());
                             } catch (Exception ex) {
+                                System.err.println(ex);
                                 System.err.println("SmartLabCoordinator: Problemas ao desligar a máquina " + machineAddress + " do laboratório " + l.getId());
                             }
                         }

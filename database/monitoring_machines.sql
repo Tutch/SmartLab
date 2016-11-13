@@ -1,7 +1,7 @@
 CREATE TABLE monitoring_machines(
 	id INTEGER, 
 	timestamp TIMESTAMP, 
-	machine_address CHARACTER(15), 
+	machine_address VARCHAR, 
 	disk_total VARCHAR, 
 	disk_free VARCHAR, 
 	mem_total VARCHAR, 
