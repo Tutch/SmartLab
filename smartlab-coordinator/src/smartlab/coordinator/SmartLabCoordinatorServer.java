@@ -42,6 +42,7 @@ public class SmartLabCoordinatorServer extends Thread {
                 try {
                     serverSocket.close();
                 } catch (IOException ex1) {
+                    
                 }
             }
             System.exit(-1);

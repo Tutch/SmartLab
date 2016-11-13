@@ -154,7 +154,6 @@ public class SmartLabAgent extends Thread {
             System.exit(-1);
         }
         try {
-
             String coordinatorAddress = args[0];
             int coordinatorPort = Integer.parseInt(args[1]);
             int id = Integer.parseInt(args[2]);
