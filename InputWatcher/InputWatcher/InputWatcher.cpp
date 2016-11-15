@@ -12,21 +12,17 @@ bool is_shutting_down = false;
 
 /* Chama o .bat que faz o desligamento da máquina
 */
-VOID executeCommand(wchar_t* wBatPath)
+VOID shutdownComputer()
 {
-	// additional information
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 
-	// set the size of the structures
 	ZeroMemory(&si, sizeof(si));
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
 
-	wchar_t cmd[120] = L"cmd.exe /C ";
-	wcsncpy_s(cmd, wBatPath, wcslen(cmd) - 12);
+	wchar_t cmd[] = L"cmd.exe c:\windows\system32\shutdown -s -t 60 -d P:0:0 -c \"O computador foi detectado como ocioso e vai desligar em 1 minuto.Salve seus arquivos.\"";
 
-	// start the program up
 	if (!CreateProcess(NULL,   // the path
 		cmd,        // Command line
 		NULL,           // Process handle not inheritable
@@ -38,14 +34,17 @@ VOID executeCommand(wchar_t* wBatPath)
 		&si,            // Pointer to STARTUPINFO structure
 		&pi)           // Pointer to PROCESS_INFORMATION structure
 		) {
-		int error = GetLastError();
-		wchar_t buffer[256];
-		wsprintfW(buffer, L"%d", error);
-		OutputDebugString(buffer);
+
+		#ifdef DEBUG
+			int error = GetLastError();
+			wchar_t buffer[256];
+			wsprintfW(buffer, L"%d", error);
+			OutputDebugString(buffer);
+		#endif
+		
 		abort();
 	}
 
-	// Close process and thread handles. 
 	CloseHandle(pi.hProcess);
 	CloseHandle(pi.hThread);
 }
@@ -123,15 +122,23 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		// Display off
 		if (time_diff >= DISPLAY_TURN_OFF_TIME && monitor_is_on) {
 			monitor_is_on = false;
-			OutputDebugString(L"display\n");
+
+			#ifdef DEBUG
+				OutputDebugString(L"display off\n");
+			#endif
+
 			PostMessage(HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, (LPARAM)2);
 		}
 
 		// Shutdown Computer
 		else if (time_diff >= SYSTEM_SHUT_DOWN_TIME && !monitor_is_on && !is_shutting_down) {
 			is_shutting_down = true;
-			OutputDebugString(L"calling bat\n");
-			executeCommand(SHUTDOWN_PATH);
+			
+			#ifdef DEBUG
+				OutputDebugString(L"calling bat\n");
+			#endif
+	
+			shutdownComputer();
 		}
 
 	}
