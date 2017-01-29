@@ -5,6 +5,10 @@
  */
 package smartlab.coordinator;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.Connection;
@@ -13,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import smartlab.entities.Laboratory;
 
@@ -24,6 +29,7 @@ public class SmartLabCoordinatorMonitor extends Thread {
 
     private Connection connection;
     private int laboratoryId;
+    private boolean AC_ON = true;
     private SmartLabCoordinatorArduinoSerialListener serialComm;
 
     public static String[] getMachineAddressListByLaboratory(Connection connection, int laboratoryId) {
@@ -104,10 +110,14 @@ public class SmartLabCoordinatorMonitor extends Thread {
                 resultSetLaboratories.close();
                 statementLaboratories.close();
                 for (Laboratory l : laboratoryList) {
-                    
-                    if (l.getPresence() == false && l.getTemperature() >= 26.0) {
-                        System.out.println("desligando...");
+                    if (l.getPresence() == false && l.getLight() >= 600 && AC_ON){
+                        System.out.println("desligando ar...");
+                        AC_ON = false;
                         serialComm.sendMessage("shutdown");
+                    }
+                    
+                    if (l.getPresence() == false && l.getTemperature() >= 23.0 && l.getLight() >= 600) {
+                        System.out.println("desligando...");
                         
                         Statement statement = connection.createStatement();
                         ResultSet resultSet = statement.executeQuery(
@@ -127,8 +137,18 @@ public class SmartLabCoordinatorMonitor extends Thread {
                                 System.err.println("SmartLabCoordinator: Problemas ao desligar a máquina " + machineAddress + " do laboratório " + l.getId());
                             }
                         }
+                        
                         resultSet.close();
                         statement.close();
+                       
+                        ProcessBuilder pb = new ProcessBuilder("shutdown","/s");
+                        try {
+                            Process p = pb.start();
+                            p.waitFor();
+                        }catch (Exception ex) {
+                            System.out.println(ex);;
+                        }
+                        
                     }
                 }
             } catch (SQLException ex) {

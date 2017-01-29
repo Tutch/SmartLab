@@ -99,6 +99,9 @@ function listarInfos(value){
         data:{ "laboratoryId":value},
 
         success: function( json ) {
+
+            console.log(json);
+            
             $.each(json, function(i, maq) {
                 
                 switch(maq.osType){

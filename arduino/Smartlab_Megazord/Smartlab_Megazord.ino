@@ -49,7 +49,9 @@ void loop() {
 
   // Read data in cicles before transmitting content
   readSensors();
-
+  
+  //Serial.println(distance);
+  //Serial.println(presence);
   mediamDistance += distance;
   mediamLDR += LDRReading;
   mediamTemperature += temperature;
@@ -73,6 +75,7 @@ void loop() {
     mediamDistance = 0;
     mediamLDR = 0;
     mediamTemperature = 0;
+    mediamPresence = "false";
     presence = false;
   }
 
@@ -82,7 +85,7 @@ void loop() {
      // Checks serial data to shutdown the AC    
     if (Serial.available() > 0){
       String message = Serial.readString();
-      turnOffAC(message); 
+      turnOffAC("shutdown"); 
     }
 
     loopTime = millis() - sendStart;
@@ -108,9 +111,13 @@ void readSensors(){
   digitalWrite(trigPin, LOW);
   duration = pulseIn(echoPin, HIGH);
   distance = (duration/2) / 29.1;
-  
-  if(distance < 160){
+
+  if(distance > 70 && distance < 90){
+    presence = false;
+  }else if(distance < 160){
     presence = true;
+  }else{
+    presence = false;  
   }
 }
 
